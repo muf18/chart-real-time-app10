@@ -31,11 +31,26 @@ const _scaleFactor = 100000000;
 const _scaleFactorDecimal = 100000000.0;
 
 const Map<String, int> _timeframeSeconds = {
-  "1m": 60, "5m": 300, "15m": 900, "30m": 1800,
-  "1h": 3600, "4h": 14400, "1d": 86400, "1w": 604800,
+  "1m": 60,
+  "5m": 300,
+  "15m": 900,
+  "30m": 1800,
+  "1h": 3600,
+  "4h": 14400,
+  "1d": 86400,
+  "1w": 604800,
 };
 
-const List<String> _supportedTimeframes = ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"];
+const List<String> _supportedTimeframes = [
+  "1m",
+  "5m",
+  "15m",
+  "30m",
+  "1h",
+  "4h",
+  "1d",
+  "1w"
+];
 
 const Map<String, Map<String, String>> _symbolNormalizationMap = {
   "Binance": {"BTC/USDT": "BTCUSDT"},
@@ -50,8 +65,10 @@ const Map<String, Map<String, String>> _symbolNormalizationMap = {
 // --- UTILITY FUNCTIONS ---
 int _doubleToInt(double val) => (val * _scaleFactorDecimal).round();
 int _stringToInt(String val) => _doubleToInt(double.parse(val));
-int _decimalToInt(Decimal val) => (val * Decimal.fromInt(_scaleFactor)).toBigInt().toInt();
-Decimal _intToDecimal(int val) => Decimal.fromInt(val) / Decimal.fromInt(_scaleFactor);
+int _decimalToInt(Decimal val) =>
+    (val * Decimal.fromInt(_scaleFactor)).toBigInt().toInt();
+Decimal _intToDecimal(int val) =>
+    Decimal.fromInt(val) / Decimal.fromInt(_scaleFactor);
 
 // --- DATA MODELS ---
 class NormalizedTrade {
@@ -70,9 +87,15 @@ class NormalizedTrade {
   });
 
   @override
-  String toString() => 'NormalizedTrade(symbol: $symbol, venue: $venue, price: ${_intToDecimal(priceInt)}, size: ${_intToDecimal(sizeInt)}, ts: $timestampUtcNs)';
+  String toString() =>
+      'NormalizedTrade(symbol: $symbol, venue: $venue, price: ${_intToDecimal(priceInt)}, size: ${_intToDecimal(sizeInt)}, ts: $timestampUtcNs)';
   @override
-  bool operator ==(Object other) => identical(this, other) || other is NormalizedTrade && runtimeType == other.runtimeType && timestampUtcNs == other.timestampUtcNs && venue == other.venue;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NormalizedTrade &&
+          runtimeType == other.runtimeType &&
+          timestampUtcNs == other.timestampUtcNs &&
+          venue == other.venue;
   @override
   int get hashCode => timestampUtcNs.hashCode ^ venue.hashCode;
 }
@@ -97,11 +120,17 @@ class AggregatedDataPoint {
   });
 
   Map<String, dynamic> toJson() => {
-    'symbol': symbol, 'timeframe': timeframe, 'timestampUtcS': timestampUtcS,
-    'vwapInt': vwapInt, 'volumeInt': volumeInt, 'lastPriceInt': lastPriceInt, 'amend': amend,
-  };
+        'symbol': symbol,
+        'timeframe': timeframe,
+        'timestampUtcS': timestampUtcS,
+        'vwapInt': vwapInt,
+        'volumeInt': volumeInt,
+        'lastPriceInt': lastPriceInt,
+        'amend': amend,
+      };
   @override
-  String toString() => 'AggregatedDataPoint(symbol: $symbol, timeframe: $timeframe, ts: $timestampUtcS, vwap: ${_intToDecimal(vwapInt)}, vol: ${_intToDecimal(volumeInt)}, lastPx: ${_intToDecimal(lastPriceInt)}, amend: $amend)';
+  String toString() =>
+      'AggregatedDataPoint(symbol: $symbol, timeframe: $timeframe, ts: $timestampUtcS, vwap: ${_intToDecimal(vwapInt)}, vol: ${_intToDecimal(volumeInt)}, lastPx: ${_intToDecimal(lastPriceInt)}, amend: $amend)';
 }
 
 class Candle {
@@ -126,15 +155,29 @@ class Candle {
   });
 
   Map<String, dynamic> toJson() => {
-    'symbol': symbol, 'timeframe': timeframe, 'openTimeUtcS': openTimeUtcS,
-    'openInt': openInt, 'highInt': highInt, 'lowInt': lowInt, 'closeInt': closeInt, 'volumeInt': volumeInt,
-  };
+        'symbol': symbol,
+        'timeframe': timeframe,
+        'openTimeUtcS': openTimeUtcS,
+        'openInt': openInt,
+        'highInt': highInt,
+        'lowInt': lowInt,
+        'closeInt': closeInt,
+        'volumeInt': volumeInt,
+      };
   @override
-  String toString() => 'Candle(symbol: $symbol, timeframe: $timeframe, time: $openTimeUtcS, o: ${_intToDecimal(openInt)}, h: ${_intToDecimal(highInt)}, l: ${_intToDecimal(lowInt)}, c: ${_intToDecimal(closeInt)}, v: ${_intToDecimal(volumeInt)})';
+  String toString() =>
+      'Candle(symbol: $symbol, timeframe: $timeframe, time: $openTimeUtcS, o: ${_intToDecimal(openInt)}, h: ${_intToDecimal(highInt)}, l: ${_intToDecimal(lowInt)}, c: ${_intToDecimal(closeInt)}, v: ${_intToDecimal(volumeInt)})';
   @override
-  bool operator ==(Object other) => identical(this, other) || other is Candle && runtimeType == other.runtimeType && openTimeUtcS == other.openTimeUtcS && symbol == other.symbol && timeframe == other.timeframe;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Candle &&
+          runtimeType == other.runtimeType &&
+          openTimeUtcS == other.openTimeUtcS &&
+          symbol == other.symbol &&
+          timeframe == other.timeframe;
   @override
-  int get hashCode => openTimeUtcS.hashCode ^ symbol.hashCode ^ timeframe.hashCode;
+  int get hashCode =>
+      openTimeUtcS.hashCode ^ symbol.hashCode ^ timeframe.hashCode;
 }
 
 // --- CORE CONTROLLER ---
@@ -160,7 +203,8 @@ class CoreController {
     Logger.root.level = Level.INFO;
     Logger.root.onRecord.listen((record) {
       if (_debug) {
-        print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
+        print(
+            '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
       }
     });
   }
@@ -190,10 +234,12 @@ class CoreController {
           _handleShutdown();
           break;
         default:
-          _sendError('UNKNOWN_CMD', 'Unknown command type: $type', reqId: reqId);
+          _sendError('UNKNOWN_CMD', 'Unknown command type: $type',
+              reqId: reqId);
       }
     } catch (e, s) {
-      _sendError('COMMAND_ERROR', 'Failed to handle command: $e', details: s.toString());
+      _sendError('COMMAND_ERROR', 'Failed to handle command: $e',
+          details: s.toString());
     }
   }
 
@@ -218,13 +264,20 @@ class CoreController {
     final tradeStreamController = StreamController<NormalizedTrade>.broadcast();
     final tradeStream = tradeStreamController.stream;
 
-    _adapters['Binance'] = BinanceAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
-    _adapters['OKX'] = OKXAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
-    _adapters['Bitget'] = BitgetAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
-    _adapters['Coinbase Exchange'] = CoinbaseAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
-    _adapters['Bitstamp'] = BitstampAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
-    _adapters['Kraken'] = KrakenAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
-    _adapters['Bitvavo'] = BitvavoAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['Binance'] = BinanceAdapter(
+        tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['OKX'] =
+        OKXAdapter(tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['Bitget'] = BitgetAdapter(
+        tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['Coinbase Exchange'] = CoinbaseAdapter(
+        tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['Bitstamp'] = BitstampAdapter(
+        tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['Kraken'] = KrakenAdapter(
+        tradeStreamController, _httpClient, _log, this._sendMessage);
+    _adapters['Bitvavo'] = BitvavoAdapter(
+        tradeStreamController, _httpClient, _log, this._sendMessage);
 
     tradeStream.listen(_aggregator.addTrade);
   }
@@ -235,7 +288,8 @@ class CoreController {
       return;
     }
     _currentSymbol = symbol;
-    await _stateManager.saveState({'lastSymbol': _currentSymbol, 'lastTimeframe': _currentTimeframe});
+    await _stateManager.saveState(
+        {'lastSymbol': _currentSymbol, 'lastTimeframe': _currentTimeframe});
     _aggregator.switchSymbol(symbol);
     await _subscribeToCurrentSymbol();
     _sendAck('setSymbol', true, reqId: reqId);
@@ -243,7 +297,8 @@ class CoreController {
 
   Future<void> _handleSetTimeframe(String timeframe, String? reqId) async {
     if (!_supportedTimeframes.contains(timeframe)) {
-      _sendError('INVALID_ARG', 'Unsupported timeframe: $timeframe', reqId: reqId);
+      _sendError('INVALID_ARG', 'Unsupported timeframe: $timeframe',
+          reqId: reqId);
       return;
     }
     if (_currentTimeframe == timeframe) {
@@ -251,11 +306,13 @@ class CoreController {
       return;
     }
     _currentTimeframe = timeframe;
-    await _stateManager.saveState({'lastSymbol': _currentSymbol, 'lastTimeframe': _currentTimeframe});
+    await _stateManager.saveState(
+        {'lastSymbol': _currentSymbol, 'lastTimeframe': _currentTimeframe});
     _sendAck('setTimeframe', true, reqId: reqId);
   }
 
-  Future<void> _handleBackfill(Map<String, dynamic> command, String? reqId) async {
+  Future<void> _handleBackfill(
+      Map<String, dynamic> command, String? reqId) async {
     try {
       final symbol = command['symbol'] as String;
       final timeframe = command['timeframe'] as String;
@@ -263,7 +320,8 @@ class CoreController {
       final end = DateTime.parse(command['endIso'] as String);
 
       if (start.isAfter(end)) {
-        _sendError('INVALID_ARG', 'startIso must be before endIso', reqId: reqId);
+        _sendError('INVALID_ARG', 'startIso must be before endIso',
+            reqId: reqId);
         return;
       }
 
@@ -273,21 +331,26 @@ class CoreController {
         orElse: () => _adapters.values.first, // Fallback, not ideal
       );
 
-      _log.info("Backfilling $symbol on ${adapter.name} from $start to $end for $timeframe");
-      final candles = await adapter.fetchHistoricalCandles(symbol, timeframe, start, end);
+      _log.info(
+          "Backfilling $symbol on ${adapter.name} from $start to $end for $timeframe");
+      final candles =
+          await adapter.fetchHistoricalCandles(symbol, timeframe, start, end);
       for (final candle in candles) {
         _sendMessage('candle', candle.toJson());
       }
       _sendAck('backfill', true, reqId: reqId);
     } catch (e, s) {
-      _sendError('BACKFILL_ERROR', 'Failed to backfill: $e', details: s.toString(), reqId: reqId);
+      _sendError('BACKFILL_ERROR', 'Failed to backfill: $e',
+          details: s.toString(), reqId: reqId);
     }
   }
 
   Future<void> _subscribeToCurrentSymbol() async {
     await Future.wait(_adapters.values.map((a) => a.disconnect()));
-    final relevantAdapters = _adapters.values.where((a) => _symbolNormalizationMap[a.name]?.containsKey(_currentSymbol) ?? false);
-    await Future.wait(relevantAdapters.map((a) => a.connectAndSubscribe(_currentSymbol)));
+    final relevantAdapters = _adapters.values.where((a) =>
+        _symbolNormalizationMap[a.name]?.containsKey(_currentSymbol) ?? false);
+    await Future.wait(
+        relevantAdapters.map((a) => a.connectAndSubscribe(_currentSymbol)));
   }
 
   void _handleShutdown() {
@@ -309,13 +372,18 @@ class CoreController {
     _uiSendPort.send(jsonEncode(message));
   }
 
-  void _sendError(String code, String message, {dynamic details, String? reqId}) {
+  void _sendError(String code, String message,
+      {dynamic details, String? reqId}) {
     _log.severe("ERROR: $code - $message - $details");
-    _sendMessage('error', {'code': code, 'message': message, 'details': details}, reqId: reqId);
+    _sendMessage(
+        'error', {'code': code, 'message': message, 'details': details},
+        reqId: reqId);
   }
 
   void _sendAck(String commandType, bool ok, {String? message, String? reqId}) {
-    _sendMessage('ack', {'for': commandType, 'ok': ok, if (message != null) 'message': message}, reqId: reqId);
+    _sendMessage('ack',
+        {'for': commandType, 'ok': ok, if (message != null) 'message': message},
+        reqId: reqId);
   }
 }
 
@@ -363,7 +431,8 @@ class Aggregator {
     _currentSymbol = symbol;
     _timeframeAggregators.clear();
     for (var tf in _timeframeSeconds.entries) {
-      _timeframeAggregators[tf.key] = _TimeframeAggregator(symbol, tf.key, tf.value, _sendMessage);
+      _timeframeAggregators[tf.key] =
+          _TimeframeAggregator(symbol, tf.key, tf.value, _sendMessage);
     }
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(milliseconds: 250), _processQueue);
@@ -378,7 +447,8 @@ class Aggregator {
     _tradeQueue.clear();
     _timeframeAggregators.clear();
     for (var tf in _timeframeSeconds.entries) {
-      _timeframeAggregators[tf.key] = _TimeframeAggregator(newSymbol, tf.key, tf.value, _sendMessage);
+      _timeframeAggregators[tf.key] =
+          _TimeframeAggregator(newSymbol, tf.key, tf.value, _sendMessage);
     }
   }
 
@@ -416,7 +486,8 @@ class _TimeframeAggregator {
   BigInt _vSumInt = BigInt.zero;
   int _lastPriceInt = 0;
 
-  _TimeframeAggregator(this.symbol, this.timeframe, this.timeframeSec, this._sendMessage);
+  _TimeframeAggregator(
+      this.symbol, this.timeframe, this.timeframeSec, this._sendMessage);
 
   void processTrade(NormalizedTrade trade) {
     final tradeTimeS = trade.timestampUtcNs ~/ 1000000000;
@@ -489,15 +560,18 @@ abstract class ExchangeAdapter {
   bool _explicitlyDisconnected = false;
   int _lastIngestUtcNs = 0;
 
-  ExchangeAdapter(this.name, this._tradeController, this._httpClient, this._log, this._sendMessage);
+  ExchangeAdapter(this.name, this._tradeController, this._httpClient, this._log,
+      this._sendMessage);
 
   String get websocketUrl;
   dynamic getSubscribeMessage(String normalizedSymbol);
   void handleWebSocketMessage(dynamic message, String normalizedSymbol);
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end);
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end);
 
   String _getExchangeSymbol(String normalizedSymbol) {
-    return _symbolNormalizationMap[name]?[normalizedSymbol] ?? (throw Exception("Symbol $normalizedSymbol not supported on $name"));
+    return _symbolNormalizationMap[name]?[normalizedSymbol] ??
+        (throw Exception("Symbol $normalizedSymbol not supported on $name"));
   }
 
   Future<void> connectAndSubscribe(String normalizedSymbol) async {
@@ -521,7 +595,8 @@ abstract class ExchangeAdapter {
 
       _wsSubscription = _ws!.stream.listen(
         (message) {
-          _lastIngestUtcNs = DateTime.now().toUtc().microsecondsSinceEpoch * 1000;
+          _lastIngestUtcNs =
+              DateTime.now().toUtc().microsecondsSinceEpoch * 1000;
           handleWebSocketMessage(message, normalizedSymbol);
         },
         onDone: () {
@@ -556,11 +631,14 @@ abstract class ExchangeAdapter {
 
     final backoffSeconds = min(30.0, 0.5 * pow(2.0, _reconnectAttempts));
     final jitter = (Random().nextDouble() * 0.2 * backoffSeconds);
-    final delay = Duration(milliseconds: ((backoffSeconds + jitter) * 1000).toInt());
+    final delay =
+        Duration(milliseconds: ((backoffSeconds + jitter) * 1000).toInt());
 
     _reconnectAttempts++;
-    _log.info("[$name] Scheduling reconnect in ${delay.inSeconds} seconds (attempt $_reconnectAttempts).");
-    _reconnectTimer = Timer(delay, () => connectAndSubscribe(_symbolNormalizationMap[name]!.keys.first));
+    _log.info(
+        "[$name] Scheduling reconnect in ${delay.inSeconds} seconds (attempt $_reconnectAttempts).");
+    _reconnectTimer = Timer(delay,
+        () => connectAndSubscribe(_symbolNormalizationMap[name]!.keys.first));
   }
 
   Future<void> disconnect() async {
@@ -593,13 +671,17 @@ abstract class ExchangeAdapter {
 // --- CONCRETE ADAPTER IMPLEMENTATIONS ---
 
 class BinanceAdapter extends ExchangeAdapter {
-  BinanceAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('Binance');
+  BinanceAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('Binance');
 
   @override
-  String get websocketUrl => 'wss://stream.binance.com:9443/ws/${_getExchangeSymbol("BTC/USDT").toLowerCase()}@trade';
+  String get websocketUrl =>
+      'wss://stream.binance.com:9443/ws/${_getExchangeSymbol("BTC/USDT").toLowerCase()}@trade';
 
   @override
-  dynamic getSubscribeMessage(String normalizedSymbol) => {}; // Subscription is in URL
+  dynamic getSubscribeMessage(String normalizedSymbol) =>
+      {}; // Subscription is in URL
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -622,40 +704,58 @@ class BinanceAdapter extends ExchangeAdapter {
   }
 
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
-    final intervalMap = {"1m": "1m", "5m": "5m", "15m": "15m", "30m": "30m", "1h": "1h", "4h": "4h", "1d": "1d", "1w": "1w"};
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
+    final intervalMap = {
+      "1m": "1m",
+      "5m": "5m",
+      "15m": "15m",
+      "30m": "30m",
+      "1h": "1h",
+      "4h": "4h",
+      "1d": "1d",
+      "1w": "1w"
+    };
     final interval = intervalMap[timeframe]!;
     final exchangeSymbol = _getExchangeSymbol(symbol);
-    final url = 'https://api.binance.com/api/v3/klines?symbol=${exchangeSymbol}&interval=${interval}&startTime=${start.millisecondsSinceEpoch}&limit=1000';
-    
+    final url =
+        'https://api.binance.com/api/v3/klines?symbol=${exchangeSymbol}&interval=${interval}&startTime=${start.millisecondsSinceEpoch}&limit=1000';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load Binance candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load Binance candles: ${response.body}');
 
     final List<dynamic> data = jsonDecode(response.body);
-    return data.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe,
-      openTimeUtcS: (kline[0] as int) ~/ 1000,
-      openInt: _stringToInt(kline[1]),
-      highInt: _stringToInt(kline[2]),
-      lowInt: _stringToInt(kline[3]),
-      closeInt: _stringToInt(kline[4]),
-      volumeInt: _stringToInt(kline[5]),
-    )).toList();
+    return data
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe,
+              openTimeUtcS: (kline[0] as int) ~/ 1000,
+              openInt: _stringToInt(kline[1]),
+              highInt: _stringToInt(kline[2]),
+              lowInt: _stringToInt(kline[3]),
+              closeInt: _stringToInt(kline[4]),
+              volumeInt: _stringToInt(kline[5]),
+            ))
+        .toList();
   }
 }
 
 class OKXAdapter extends ExchangeAdapter {
-  OKXAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('OKX');
+  OKXAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('OKX');
 
   @override
   String get websocketUrl => 'wss://ws.okx.com:8443/ws/v5/public';
 
   @override
   dynamic getSubscribeMessage(String normalizedSymbol) => {
-    "op": "subscribe",
-    "args": [{"channel": "trades", "instId": _getExchangeSymbol(normalizedSymbol)}]
-  };
+        "op": "subscribe",
+        "args": [
+          {"channel": "trades", "instId": _getExchangeSymbol(normalizedSymbol)}
+        ]
+      };
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -680,43 +780,65 @@ class OKXAdapter extends ExchangeAdapter {
       _ws?.sink.add('ping');
     });
   }
-  
+
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
     // OKX API is complex for historical range, this is a simplified implementation
-    final intervalMap = {"1m": "1m", "5m": "5m", "15m": "15m", "30m": "30m", "1h": "1H", "4h": "4H", "1d": "1D", "1w": "1W"};
+    final intervalMap = {
+      "1m": "1m",
+      "5m": "5m",
+      "15m": "15m",
+      "30m": "30m",
+      "1h": "1H",
+      "4h": "4H",
+      "1d": "1D",
+      "1w": "1W"
+    };
     final bar = intervalMap[timeframe]!;
     final exchangeSymbol = _getExchangeSymbol(symbol);
-    final url = 'https://www.okx.com/api/v5/market/candles?instId=${exchangeSymbol}&bar=${bar}&limit=300';
-    
+    final url =
+        'https://www.okx.com/api/v5/market/candles?instId=${exchangeSymbol}&bar=${bar}&limit=300';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load OKX candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load OKX candles: ${response.body}');
 
     final List<dynamic> data = jsonDecode(response.body)['data'];
-    return data.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe,
-      openTimeUtcS: int.parse(kline[0]) ~/ 1000,
-      openInt: _stringToInt(kline[1]),
-      highInt: _stringToInt(kline[2]),
-      lowInt: _stringToInt(kline[3]),
-      closeInt: _stringToInt(kline[4]),
-      volumeInt: _stringToInt(kline[5]),
-    )).toList();
+    return data
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe,
+              openTimeUtcS: int.parse(kline[0]) ~/ 1000,
+              openInt: _stringToInt(kline[1]),
+              highInt: _stringToInt(kline[2]),
+              lowInt: _stringToInt(kline[3]),
+              closeInt: _stringToInt(kline[4]),
+              volumeInt: _stringToInt(kline[5]),
+            ))
+        .toList();
   }
 }
 
 class BitgetAdapter extends ExchangeAdapter {
-  BitgetAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('Bitget');
+  BitgetAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('Bitget');
 
   @override
   String get websocketUrl => 'wss://ws.bitget.com/v2/spot/public';
 
   @override
   dynamic getSubscribeMessage(String normalizedSymbol) => {
-    "op": "subscribe",
-    "args": [{"instType": "SPOT", "channel": "trade", "instId": _getExchangeSymbol(normalizedSymbol)}]
-  };
+        "op": "subscribe",
+        "args": [
+          {
+            "instType": "SPOT",
+            "channel": "trade",
+            "instId": _getExchangeSymbol(normalizedSymbol)
+          }
+        ]
+      };
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -729,7 +851,10 @@ class BitgetAdapter extends ExchangeAdapter {
           venue: name,
           priceInt: _stringToInt(isCompact ? tradeData[1] : tradeData['p']),
           sizeInt: _stringToInt(isCompact ? tradeData[2] : tradeData['q']),
-          timestampUtcNs: (isCompact ? int.parse(tradeData[0]) : int.parse(tradeData['t'])) * 1000000,
+          timestampUtcNs: (isCompact
+                  ? int.parse(tradeData[0])
+                  : int.parse(tradeData['t'])) *
+              1000000,
         );
         _tradeController.add(trade);
       }
@@ -744,40 +869,47 @@ class BitgetAdapter extends ExchangeAdapter {
   }
 
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
     final granularity = _timeframeSeconds[timeframe]!;
     final exchangeSymbol = _getExchangeSymbol(symbol);
-    final url = 'https://api.bitget.com/api/spot/v1/market/candles?symbol=${exchangeSymbol}&granularity=${granularity}&limit=1000';
-    
+    final url =
+        'https://api.bitget.com/api/spot/v1/market/candles?symbol=${exchangeSymbol}&granularity=${granularity}&limit=1000';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load Bitget candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load Bitget candles: ${response.body}');
 
     final List<dynamic> data = jsonDecode(response.body);
-    return data.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe,
-      openTimeUtcS: int.parse(kline[0]) ~/ 1000,
-      openInt: _stringToInt(kline[1]),
-      highInt: _stringToInt(kline[2]),
-      lowInt: _stringToInt(kline[3]),
-      closeInt: _stringToInt(kline[4]),
-      volumeInt: _stringToInt(kline[5]),
-    )).toList();
+    return data
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe,
+              openTimeUtcS: int.parse(kline[0]) ~/ 1000,
+              openInt: _stringToInt(kline[1]),
+              highInt: _stringToInt(kline[2]),
+              lowInt: _stringToInt(kline[3]),
+              closeInt: _stringToInt(kline[4]),
+              volumeInt: _stringToInt(kline[5]),
+            ))
+        .toList();
   }
 }
 
 class CoinbaseAdapter extends ExchangeAdapter {
-  CoinbaseAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('Coinbase Exchange');
+  CoinbaseAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('Coinbase Exchange');
 
   @override
   String get websocketUrl => 'wss://ws-feed.exchange.coinbase.com';
 
   @override
   dynamic getSubscribeMessage(String normalizedSymbol) => {
-    "type": "subscribe",
-    "product_ids": [_getExchangeSymbol(normalizedSymbol)],
-    "channels": ["matches"]
-  };
+        "type": "subscribe",
+        "product_ids": [_getExchangeSymbol(normalizedSymbol)],
+        "channels": ["matches"]
+      };
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -788,60 +920,75 @@ class CoinbaseAdapter extends ExchangeAdapter {
         venue: name,
         priceInt: _stringToInt(data['price']),
         sizeInt: _stringToInt(data['size']),
-        timestampUtcNs: DateTime.parse(data['time']).microsecondsSinceEpoch * 1000,
+        timestampUtcNs:
+            DateTime.parse(data['time']).microsecondsSinceEpoch * 1000,
       );
       _tradeController.add(trade);
     }
   }
 
   @override
-  void _startHeartbeat() { /* Coinbase does not require client-side pings */ }
+  void _startHeartbeat() {/* Coinbase does not require client-side pings */}
 
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
     // Coinbase has limited granularities, so we might need to aggregate
     final supportedSeconds = [60, 300, 900, 3600, 21600, 86400];
     final requestedSeconds = _timeframeSeconds[timeframe]!;
-    
-    int fetchGranularity = supportedSeconds.lastWhere((s) => s <= requestedSeconds, orElse: () => supportedSeconds.first);
-    
+
+    int fetchGranularity = supportedSeconds.lastWhere(
+        (s) => s <= requestedSeconds,
+        orElse: () => supportedSeconds.first);
+
     final exchangeSymbol = _getExchangeSymbol(symbol);
-    final url = 'https://api.exchange.coinbase.com/products/$exchangeSymbol/candles?granularity=$fetchGranularity&start=${start.toIso8601String()}&end=${end.toIso8601String()}';
-    
+    final url =
+        'https://api.exchange.coinbase.com/products/$exchangeSymbol/candles?granularity=$fetchGranularity&start=${start.toIso8601String()}&end=${end.toIso8601String()}';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load Coinbase candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load Coinbase candles: ${response.body}');
 
     final List<dynamic> data = jsonDecode(response.body);
-    List<Candle> fetchedCandles = data.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe, // Temporarily use target timeframe
-      openTimeUtcS: kline[0] as int,
-      lowInt: _doubleToInt(kline[1].toDouble()),
-      highInt: _doubleToInt(kline[2].toDouble()),
-      openInt: _doubleToInt(kline[3].toDouble()),
-      closeInt: _doubleToInt(kline[4].toDouble()),
-      volumeInt: _doubleToInt(kline[5].toDouble()),
-    )).toList().reversed.toList(); // API returns newest first
+    List<Candle> fetchedCandles = data
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe, // Temporarily use target timeframe
+              openTimeUtcS: kline[0] as int,
+              lowInt: _doubleToInt(kline[1].toDouble()),
+              highInt: _doubleToInt(kline[2].toDouble()),
+              openInt: _doubleToInt(kline[3].toDouble()),
+              closeInt: _doubleToInt(kline[4].toDouble()),
+              volumeInt: _doubleToInt(kline[5].toDouble()),
+            ))
+        .toList()
+        .reversed
+        .toList(); // API returns newest first
 
     if (fetchGranularity == requestedSeconds) {
       return fetchedCandles;
     } else {
-      return _aggregateCandles(fetchedCandles, symbol, timeframe, requestedSeconds);
+      return _aggregateCandles(
+          fetchedCandles, symbol, timeframe, requestedSeconds);
     }
   }
 }
 
 class BitstampAdapter extends ExchangeAdapter {
-  BitstampAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('Bitstamp');
+  BitstampAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('Bitstamp');
 
   @override
   String get websocketUrl => 'wss://ws.bitstamp.net';
 
   @override
   dynamic getSubscribeMessage(String normalizedSymbol) => {
-    "event": "bts:subscribe",
-    "data": {"channel": "live_trades_${_getExchangeSymbol(normalizedSymbol)}"}
-  };
+        "event": "bts:subscribe",
+        "data": {
+          "channel": "live_trades_${_getExchangeSymbol(normalizedSymbol)}"
+        }
+      };
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -867,40 +1014,47 @@ class BitstampAdapter extends ExchangeAdapter {
   }
 
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
     final step = _timeframeSeconds[timeframe]!;
     final exchangeSymbol = _getExchangeSymbol(symbol);
-    final url = 'https://www.bitstamp.net/api/v2/ohlc/$exchangeSymbol/?step=$step&limit=1000&start=${start.millisecondsSinceEpoch ~/ 1000}';
-    
+    final url =
+        'https://www.bitstamp.net/api/v2/ohlc/$exchangeSymbol/?step=$step&limit=1000&start=${start.millisecondsSinceEpoch ~/ 1000}';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load Bitstamp candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load Bitstamp candles: ${response.body}');
 
     final List<dynamic> data = jsonDecode(response.body)['data']['ohlc'];
-    return data.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe,
-      openTimeUtcS: int.parse(kline['timestamp']),
-      openInt: _stringToInt(kline['open']),
-      highInt: _stringToInt(kline['high']),
-      lowInt: _stringToInt(kline['low']),
-      closeInt: _stringToInt(kline['close']),
-      volumeInt: _stringToInt(kline['volume']),
-    )).toList();
+    return data
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe,
+              openTimeUtcS: int.parse(kline['timestamp']),
+              openInt: _stringToInt(kline['open']),
+              highInt: _stringToInt(kline['high']),
+              lowInt: _stringToInt(kline['low']),
+              closeInt: _stringToInt(kline['close']),
+              volumeInt: _stringToInt(kline['volume']),
+            ))
+        .toList();
   }
 }
 
 class KrakenAdapter extends ExchangeAdapter {
-  KrakenAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('Kraken');
+  KrakenAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('Kraken');
 
   @override
   String get websocketUrl => 'wss://ws.kraken.com';
 
   @override
   dynamic getSubscribeMessage(String normalizedSymbol) => {
-    "event": "subscribe",
-    "pair": [normalizedSymbol], // Kraken uses normalized symbol directly
-    "subscription": {"name": "trade"}
-  };
+        "event": "subscribe",
+        "pair": [normalizedSymbol], // Kraken uses normalized symbol directly
+        "subscription": {"name": "trade"}
+      };
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -928,42 +1082,63 @@ class KrakenAdapter extends ExchangeAdapter {
   }
 
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
     final pairMap = {"BTC/USD": "XXBTZUSD", "BTC/EUR": "XXBTZEUR"};
-    final intervalMap = {"1m": 1, "5m": 5, "15m": 15, "30m": 30, "1h": 60, "4h": 240, "1d": 1440, "1w": 10080};
+    final intervalMap = {
+      "1m": 1,
+      "5m": 5,
+      "15m": 15,
+      "30m": 30,
+      "1h": 60,
+      "4h": 240,
+      "1d": 1440,
+      "1w": 10080
+    };
     final interval = intervalMap[timeframe]!;
     final pair = pairMap[symbol]!;
-    final url = 'https://api.kraken.com/0/public/OHLC?pair=$pair&interval=$interval&since=${start.millisecondsSinceEpoch ~/ 1000}';
-    
+    final url =
+        'https://api.kraken.com/0/public/OHLC?pair=$pair&interval=$interval&since=${start.millisecondsSinceEpoch ~/ 1000}';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load Kraken candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load Kraken candles: ${response.body}');
 
     final Map<String, dynamic> data = jsonDecode(response.body);
     final List<dynamic> klines = data['result'][pair];
-    return klines.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe,
-      openTimeUtcS: kline[0] as int,
-      openInt: _stringToInt(kline[1]),
-      highInt: _stringToInt(kline[2]),
-      lowInt: _stringToInt(kline[3]),
-      closeInt: _stringToInt(kline[4]),
-      volumeInt: _stringToInt(kline[6]),
-    )).toList();
+    return klines
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe,
+              openTimeUtcS: kline[0] as int,
+              openInt: _stringToInt(kline[1]),
+              highInt: _stringToInt(kline[2]),
+              lowInt: _stringToInt(kline[3]),
+              closeInt: _stringToInt(kline[4]),
+              volumeInt: _stringToInt(kline[6]),
+            ))
+        .toList();
   }
 }
 
 class BitvavoAdapter extends ExchangeAdapter {
-  BitvavoAdapter(super.tradeController, super.httpClient, super.log, super.sendMessage) : super('Bitvavo');
+  BitvavoAdapter(
+      super.tradeController, super.httpClient, super.log, super.sendMessage)
+      : super('Bitvavo');
 
   @override
   String get websocketUrl => 'wss://ws.bitvavo.com/v2/';
 
   @override
   dynamic getSubscribeMessage(String normalizedSymbol) => {
-    "action": "subscribe",
-    "channels": [{"name": "trades", "markets": [_getExchangeSymbol(normalizedSymbol)]}]
-  };
+        "action": "subscribe",
+        "channels": [
+          {
+            "name": "trades",
+            "markets": [_getExchangeSymbol(normalizedSymbol)]
+          }
+        ]
+      };
 
   @override
   void handleWebSocketMessage(dynamic message, String normalizedSymbol) {
@@ -981,39 +1156,55 @@ class BitvavoAdapter extends ExchangeAdapter {
   }
 
   @override
-  void _startHeartbeat() { /* Bitvavo does not require client-side pings */ }
+  void _startHeartbeat() {/* Bitvavo does not require client-side pings */}
 
   @override
-  Future<List<Candle>> fetchHistoricalCandles(String symbol, String timeframe, DateTime start, DateTime end) async {
-    final intervalMap = {"1m": "1m", "5m": "5m", "15m": "15m", "30m": "30m", "1h": "1h", "4h": "4h", "1d": "1d", "1w": "1w"};
+  Future<List<Candle>> fetchHistoricalCandles(
+      String symbol, String timeframe, DateTime start, DateTime end) async {
+    final intervalMap = {
+      "1m": "1m",
+      "5m": "5m",
+      "15m": "15m",
+      "30m": "30m",
+      "1h": "1h",
+      "4h": "4h",
+      "1d": "1d",
+      "1w": "1w"
+    };
     final interval = intervalMap[timeframe]!;
     final exchangeSymbol = _getExchangeSymbol(symbol);
-    final url = 'https://api.bitvavo.com/v2/$exchangeSymbol/candles?interval=$interval&start=${start.millisecondsSinceEpoch}';
-    
+    final url =
+        'https://api.bitvavo.com/v2/$exchangeSymbol/candles?interval=$interval&start=${start.millisecondsSinceEpoch}';
+
     final response = await _httpClient.get(Uri.parse(url));
-    if (response.statusCode != 200) throw Exception('Failed to load Bitvavo candles: ${response.body}');
+    if (response.statusCode != 200)
+      throw Exception('Failed to load Bitvavo candles: ${response.body}');
 
     final List<dynamic> data = jsonDecode(response.body);
-    return data.map((kline) => Candle(
-      symbol: symbol,
-      timeframe: timeframe,
-      openTimeUtcS: kline[0] ~/ 1000,
-      openInt: _stringToInt(kline[1]),
-      highInt: _stringToInt(kline[2]),
-      lowInt: _stringToInt(kline[3]),
-      closeInt: _stringToInt(kline[4]),
-      volumeInt: _stringToInt(kline[5]),
-    )).toList();
+    return data
+        .map((kline) => Candle(
+              symbol: symbol,
+              timeframe: timeframe,
+              openTimeUtcS: kline[0] ~/ 1000,
+              openInt: _stringToInt(kline[1]),
+              highInt: _stringToInt(kline[2]),
+              lowInt: _stringToInt(kline[3]),
+              closeInt: _stringToInt(kline[4]),
+              volumeInt: _stringToInt(kline[5]),
+            ))
+        .toList();
   }
 }
 
 // --- HELPER FOR CANDLE AGGREGATION (TIMEFRAME FALLBACK) ---
-List<Candle> _aggregateCandles(List<Candle> smallerCandles, String symbol, String targetTimeframe, int targetSeconds) {
+List<Candle> _aggregateCandles(List<Candle> smallerCandles, String symbol,
+    String targetTimeframe, int targetSeconds) {
   if (smallerCandles.isEmpty) return [];
-  
+
   final List<Candle> aggregated = [];
-  
-  int currentBucketStart = (smallerCandles.first.openTimeUtcS ~/ targetSeconds) * targetSeconds;
+
+  int currentBucketStart =
+      (smallerCandles.first.openTimeUtcS ~/ targetSeconds) * targetSeconds;
   int openInt = smallerCandles.first.openInt;
   int highInt = smallerCandles.first.highInt;
   int lowInt = smallerCandles.first.lowInt;
@@ -1040,7 +1231,7 @@ List<Candle> _aggregateCandles(List<Candle> smallerCandles, String symbol, Strin
         closeInt: closeInt,
         volumeInt: volumeInt,
       ));
-      
+
       currentBucketStart = bucketStart;
       openInt = candle.openInt;
       highInt = candle.highInt;

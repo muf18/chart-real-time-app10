@@ -65,21 +65,26 @@ class CoreIsolateBridge {
   final ReceivePort _receivePort = ReceivePort();
   int _reqCounter = 0;
 
-  final _aggregatedDataPointController = StreamController<AggregatedDataPoint>.broadcast();
+  final _aggregatedDataPointController =
+      StreamController<AggregatedDataPoint>.broadcast();
   final _candleHistoryController = StreamController<List<Candle>>.broadcast();
-  final _connectionStatusController = StreamController<Map<String, dynamic>>.broadcast();
+  final _connectionStatusController =
+      StreamController<Map<String, dynamic>>.broadcast();
   final _errorController = StreamController<Map<String, dynamic>>.broadcast();
 
-  Stream<AggregatedDataPoint> get aggregatedDataPointStream => _aggregatedDataPointController.stream;
-  Stream<List<Candle>> get candleHistoryStream => _candleHistoryController.stream;
-  Stream<Map<String, dynamic>> get connectionStatusStream => _connectionStatusController.stream;
+  Stream<AggregatedDataPoint> get aggregatedDataPointStream =>
+      _aggregatedDataPointController.stream;
+  Stream<List<Candle>> get candleHistoryStream =>
+      _candleHistoryController.stream;
+  Stream<Map<String, dynamic>> get connectionStatusStream =>
+      _connectionStatusController.stream;
   Stream<Map<String, dynamic>> get errorStream => _errorController.stream;
 
   Future<void> initialize(String stateDirPath) async {
     _isolate = await Isolate.spawn(core.coreIsolateMain, _receivePort.sendPort);
-    
+
     final Completer<void> completer = Completer();
-    
+
     _receivePort.listen((message) {
       if (message is SendPort) {
         _sendPort = message;
@@ -93,7 +98,7 @@ class CoreIsolateBridge {
         _handleMessageFromCore(message);
       }
     });
-    
+
     return completer.future;
   }
 
@@ -105,7 +110,8 @@ class CoreIsolateBridge {
 
       switch (type) {
         case 'aggregated':
-          _aggregatedDataPointController.add(AggregatedDataPoint.fromJson(data));
+          _aggregatedDataPointController
+              .add(AggregatedDataPoint.fromJson(data));
           break;
         case 'candle':
           _candleHistoryController.add([Candle.fromJson(data)]);
@@ -180,12 +186,21 @@ class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<String> _selectedSymbol = ValueNotifier('BTC/USDT');
   final ValueNotifier<String> _selectedTimeframe = ValueNotifier('1m');
   final List<String> _supportedSymbols = ['BTC/USDT', 'BTC/USD', 'BTC/EUR'];
-  final List<String> _supportedTimeframes = ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"];
+  final List<String> _supportedTimeframes = [
+    "1m",
+    "5m",
+    "15m",
+    "30m",
+    "1h",
+    "4h",
+    "1d",
+    "1w"
+  ];
 
   final List<cs.Candle> _candles = [];
   final List<FlSpot> _vwapData = [];
   final List<BarChartGroupData> _volumeData = [];
-  
+
   StreamSubscription? _candleSubscription;
   StreamSubscription? _aggSubscription;
   StreamSubscription? _errorSubscription;
@@ -210,7 +225,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _listenToCoreStreams() {
     _candleSubscription?.cancel();
-    _candleSubscription = widget.coreBridge.candleHistoryStream.listen((newCandles) {
+    _candleSubscription =
+        widget.coreBridge.candleHistoryStream.listen((newCandles) {
       setState(() {
         for (var c in newCandles) {
           _candles.add(_toCsCandle(c));
@@ -220,8 +236,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     _aggSubscription?.cancel();
-    _aggSubscription = widget.coreBridge.aggregatedDataPointStream.listen((agg) {
-      if (agg.symbol == _selectedSymbol.value && agg.timeframe == _selectedTimeframe.value) {
+    _aggSubscription =
+        widget.coreBridge.aggregatedDataPointStream.listen((agg) {
+      if (agg.symbol == _selectedSymbol.value &&
+          agg.timeframe == _selectedTimeframe.value) {
         setState(() {
           final timestampMs = agg.timestampUtcS * 1000.0;
           final vwap = _intToDouble(agg.vwapInt);
@@ -240,7 +258,9 @@ class _MyHomePageState extends State<MyHomePage> {
           _vwapData.add(vwapSpot);
           _volumeData.add(volumeBar);
 
-          if (_candles.isNotEmpty && _candles.last.date.millisecondsSinceEpoch ~/ 1000 == agg.timestampUtcS) {
+          if (_candles.isNotEmpty &&
+              _candles.last.date.millisecondsSinceEpoch ~/ 1000 ==
+                  agg.timestampUtcS) {
             final last = _candles.last;
             _candles.last = cs.Candle(
               date: last.date,
@@ -251,15 +271,16 @@ class _MyHomePageState extends State<MyHomePage> {
               volume: volume,
             );
           } else {
-             final newCandle = cs.Candle(
-                date: DateTime.fromMillisecondsSinceEpoch(agg.timestampUtcS * 1000),
-                open: _intToDouble(agg.lastPriceInt),
-                high: _intToDouble(agg.lastPriceInt),
-                low: _intToDouble(agg.lastPriceInt),
-                close: _intToDouble(agg.lastPriceInt),
-                volume: volume,
-             );
-             _candles.add(newCandle);
+            final newCandle = cs.Candle(
+              date:
+                  DateTime.fromMillisecondsSinceEpoch(agg.timestampUtcS * 1000),
+              open: _intToDouble(agg.lastPriceInt),
+              high: _intToDouble(agg.lastPriceInt),
+              low: _intToDouble(agg.lastPriceInt),
+              close: _intToDouble(agg.lastPriceInt),
+              volume: volume,
+            );
+            _candles.add(newCandle);
           }
         });
       }
@@ -327,7 +348,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text(symbol),
                 onTap: () {
                   _selectedSymbol.value = symbol;
-                  widget.coreBridge.postCommand({'type': 'setSymbol', 'symbol': symbol});
+                  widget.coreBridge
+                      .postCommand({'type': 'setSymbol', 'symbol': symbol});
                   _resetAndFetchData();
                   Navigator.of(context).pop();
                 },
@@ -349,13 +371,16 @@ class _MyHomePageState extends State<MyHomePage> {
               return GestureDetector(
                 onTap: () {
                   _selectedTimeframe.value = tf;
-                  widget.coreBridge.postCommand({'type': 'setTimeframe', 'timeframe': tf});
+                  widget.coreBridge
+                      .postCommand({'type': 'setTimeframe', 'timeframe': tf});
                   _resetAndFetchData();
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   alignment: Alignment.center,
-                  color: value == tf ? Colors.blueGrey.shade700 : Colors.transparent,
+                  color: value == tf
+                      ? Colors.blueGrey.shade700
+                      : Colors.transparent,
                   child: Text(tf),
                 ),
               );
